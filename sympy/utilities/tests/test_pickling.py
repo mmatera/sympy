@@ -655,15 +655,15 @@ def test_pickling_polys_rootoftools():
 from sympy.printing.latex import LatexPrinter
 from sympy.printing.mathml import MathMLContentPrinter, MathMLPresentationPrinter
 from sympy.printing.pretty.pretty import PrettyPrinter
-from sympy.printing.pretty.stringpict import prettyForm, stringPict
+from sympy.printing.pretty.stringpict import prettyForm, StringPict
 from sympy.printing.printer import Printer
 from sympy.printing.python import PythonPrinter
 
 
 def test_printing():
     for c in (LatexPrinter, LatexPrinter(), MathMLContentPrinter,
-              MathMLPresentationPrinter, PrettyPrinter, prettyForm, stringPict,
-              stringPict("a"), Printer, Printer(), PythonPrinter,
+              MathMLPresentationPrinter, PrettyPrinter, prettyForm, StringPict,
+              StringPict("a"), Printer, Printer(), PythonPrinter,
               PythonPrinter()):
         check(c)
 

@@ -26,7 +26,7 @@ from sympy.core.singleton import S as _S
 from sympy.core.sorting import default_sort_key
 from sympy.core.sympify import _sympify
 from sympy.functions.elementary.miscellaneous import sqrt
-from sympy.printing.pretty.stringpict import stringPict
+from sympy.printing.pretty.stringpict import StringPict
 
 from sympy.physics.quantum.anticommutator import AntiCommutator
 from sympy.physics.quantum.commutator import Commutator
@@ -293,7 +293,7 @@ class Gate(UnitaryOperator):
         return '%s(%s)' % (self.gate_name, label)
 
     def _pretty(self, printer, *args):
-        a = stringPict(self.gate_name)
+        a = StringPict(self.gate_name)
         b = self._print_label_pretty(printer, *args)
         return self._print_subscript_pretty(a, b)
 
@@ -428,7 +428,7 @@ class CGate(Gate):
         controls = self._print_sequence_pretty(
             self.controls, ',', printer, *args)
         gate = printer._print(self.gate)
-        gate_name = stringPict(self.gate_name)
+        gate_name = StringPict(self.gate_name)
         first = self._print_subscript_pretty(gate_name, controls)
         gate = self._print_parens_pretty(gate)
         final = first.right(gate)
@@ -565,7 +565,7 @@ class UGate(Gate):
     def _pretty(self, printer, *args):
         targets = self._print_sequence_pretty(
             self.targets, ',', printer, *args)
-        gate_name = stringPict(self.gate_name)
+        gate_name = StringPict(self.gate_name)
         return self._print_subscript_pretty(gate_name, targets)
 
     def _latex(self, printer, *args):

@@ -9,7 +9,7 @@ from sympy.core.singleton import S
 from sympy.functions.elementary.complexes import conjugate
 from sympy.functions.elementary.miscellaneous import sqrt
 from sympy.integrals.integrals import integrate
-from sympy.printing.pretty.stringpict import stringPict
+from sympy.printing.pretty.stringpict import StringPict
 from sympy.physics.quantum.qexpr import QExpr, dispatch_method
 
 __all__ = [
@@ -152,7 +152,7 @@ class StateBase(QExpr):
 
         # If height is 1, just return brackets
         if height == 1:
-            return stringPict(lbracket), stringPict(rbracket)
+            return StringPict(lbracket), StringPict(rbracket)
         # Make height even
         height += (height % 2)
 
@@ -175,7 +175,7 @@ class StateBase(QExpr):
             else:
                 raise ValueError(bracket)
             brackets.append(
-                stringPict('\n'.join(bracket_args), baseline=height//2))
+                StringPict('\n'.join(bracket_args), baseline=height//2))
         return brackets
 
     def _sympystr(self, printer, *args):
