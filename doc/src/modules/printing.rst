@@ -29,12 +29,12 @@ PrettyPrinter Class
 
 The pretty printing subsystem is implemented in ``sympy.printing.pretty.pretty``
 by the ``PrettyPrinter`` class deriving from ``Printer``. It relies on
-the modules ``sympy.printing.pretty.stringPict``, and
+the modules ``sympy.printing.pretty.StringPict``, and
 ``sympy.printing.pretty.pretty_symbology`` for rendering nice-looking
 formulas.
 
-The module ``stringPict`` provides a base class ``stringPict`` and a derived
-class ``prettyForm`` that ease the creation and manipulation of formulas
+The module ``StringPict`` provides a base class ``StringPict`` and a derived
+class ``PrettyForm`` that ease the creation and manipulation of formulas
 that span across multiple lines.
 
 The module ``pretty_symbology`` provides primitives to construct 2D shapes
@@ -674,11 +674,18 @@ The following constants/functions are for rendering atoms and symbols.
 
 .. automodule:: sympy.printing.pretty.stringpict
 
+.. autoclass:: StringPict
+   :members:
+
 .. autoclass:: stringPict
+   :members:
+
+.. autoclass:: PrettyForm
    :members:
 
 .. autoclass:: prettyForm
    :members:
+
 
 dotprint
 --------
