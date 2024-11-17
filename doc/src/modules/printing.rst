@@ -643,8 +643,6 @@ Pretty-Printing Implementation Helpers
 The following two functions return the Unicode version of the inputted Greek
 letter.
 
-.. autofunction:: g
-.. autofunction:: G
 .. autodata:: greek_letters
 .. autodata:: digit_2txt
 .. autodata:: symb_2txt
@@ -664,7 +662,6 @@ The following functions return Unicode vertical objects.
 The following constants are for rendering roots and fractions.
 
 .. autodata:: root
-.. autofunction:: VF
 .. autodata:: frac
 
 The following constants/functions are for rendering atoms and symbols.
