@@ -236,7 +236,8 @@ class StringPict:
 
         # make a list of pictures, with equal height and baseline
         new_baseline = max((obj.baseline for obj in objects))
-        new_height_below_baseline = max(obj.height() - obj.baseline for obj in objects)
+        new_height_below_baseline = max(
+            obj.height() - obj.baseline for obj in objects)
         new_height = new_baseline + new_height_below_baseline
 
         pictures = []
@@ -507,23 +508,24 @@ class StringPict:
     @property
     def s(self):
         sympy_deprecation_warning(
-                ("The attribute `s` of `StringPict` is deprecated since Sympy=1.14."
-                 "Use `text` instead."),
-                deprecated_since_version="1.14",
-                active_deprecations_target="deprecated-pretty-printing-functions",
-            )
+            ("The attribute `s` of `StringPict` is deprecated since Sympy=1.14."
+             "Use `text` instead."),
+            deprecated_since_version="1.14",
+            active_deprecations_target="deprecated-pretty-printing-functions",
+        )
         return self.text
 
     @s.setter
     def s(self, value):
         sympy_deprecation_warning(
             ("The attribute `s` of `StringPict` is deprecated since Sympy=1.14."
-            "Use `text` instead."),
-                active_deprecations_target="deprecated-pretty-printing-functions",
-            )
+             "Use `text` instead."),
+            deprecated_since_version="1.14",
+            active_deprecations_target="deprecated-pretty-printing-functions",
+        )
         self.text = value
         return self.text
-    
+
     def subindex(self, sub_index):
         """Add a `subindex`.
 
@@ -605,7 +607,8 @@ class StringPict:
             objects.append(arg)
 
         # compute new width
-        new_width = max(obj.width() for obj in objects if obj is not StringPict.LINE)
+        new_width = max(obj.width()
+                        for obj in objects if obj is not StringPict.LINE)
 
         line_obj = StringPict(hobj("-", new_width))
 
@@ -679,7 +682,8 @@ class StringPict:
                 for offset, obj, text in zip(offsets, objects, texts)
             )
         elif align != "t":
-            raise ValueError(f"'{align}' is not a valid value or the align parameter.")
+            raise ValueError(
+                f"'{align}' is not a valid value or the align parameter.")
 
         result = [self.__class__(text, baseline) for text in texts]
         return result
@@ -846,7 +850,8 @@ class PrettyForm(StringPict):
             num = num.right(" ")
 
         return PrettyForm(
-            binding=PrettyForm.DIV, *StringPict.stack(num, StringPict.LINE, den)
+            binding=PrettyForm.DIV, *
+            StringPict.stack(num, StringPict.LINE, den)
         )
 
     @staticmethod
@@ -854,7 +859,8 @@ class PrettyForm(StringPict):
         """Functions of one or more variables."""
         if function in PrettyForm.simpleFunctions:
             # simple function: use only space if possible
-            assert len(args) == 1, f"Simple function {function} must have 1 argument"
+            assert len(
+                args) == 1, f"Simple function {function} must have 1 argument"
             arg = args[0].__pretty__()
             if arg.binding <= PrettyForm.DIV:
                 # optimization: no parentheses necessary
