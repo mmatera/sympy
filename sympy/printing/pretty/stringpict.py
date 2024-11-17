@@ -34,7 +34,7 @@ class StringPict:
         """Initialize from string.
         Multiline strings are centered.
         """
-        assert isinstance(text, str)
+        assert isinstance(text, str), f'type {type(text)} is not str'
         assert isinstance(baseline, int)
         self.text = text
         # picture is a string that just can be printed
@@ -137,6 +137,44 @@ class StringPict:
     def height(self):
         """The height of the picture in characters."""
         return len(self.picture)
+
+    def join(self, *args, align=None):
+        """
+        Concatenate any number of StringsPicts.
+
+        The StringPict whose method is called is inserted in
+        between each given arguments.
+        The result is returned as a new StringPict
+
+        Examples
+        ========
+
+        >>> from sympy.printing.pretty.stringpict import StringPict, PrettyForm
+        >>> from sympy.printing.pretty.pretty_symbology import vobj
+        >>> sep = StringPict(", ")
+        >>> fractions = [PrettyForm(str(i))/PrettyForm("6") for i in range(1, 6)]
+        >>> print(sep.join(*fractions))
+        1  2  3  4  5
+        -, -, -, -, -
+        6  6  6  6  6
+
+        Using a separator with a larger height
+
+        >>> sep = StringPict(vobj("|", 3)).left(" ").right(" ")
+        >>> print(sep.join(*fractions, align="t"))
+        1 | 2 | 3 | 4 | 5
+        - | - | - | - | -
+        6 | 6 | 6 | 6 | 6
+
+        """
+        if len(args) == 0:
+            return StringPict("")
+        result, *rest = args
+        if isinstance(result, str):
+            result = StringPict(result)
+        for elem in rest:
+            result = result.right(self, elem, align=align)
+        return result
 
     def left(self, *args, align=""):
         """
@@ -367,7 +405,7 @@ class StringPict:
 
         """
 
-        if align == "":
+        if align is None or align == "":
             return self.__class__(*StringPict.next(self, *args))
 
         return self.__class__(
@@ -621,7 +659,7 @@ class StringPict:
                 for offset, obj, text in zip(offsets, objects, texts)
             )
         elif align != "t":
-            raise ValueError()
+            raise ValueError(f"'{align}' is not a valid value or the align parameter.")
 
         result = [self.__class__(text, baseline) for text in texts]
         return result

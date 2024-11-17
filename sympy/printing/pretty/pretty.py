@@ -3042,19 +3042,9 @@ class PrettyPrinter(Printer):
         return prettyForm(str(expr))
 
     def join(self, delimiter, args):
-        pform = None
-
-        for arg in args:
-            if pform is None:
-                pform = arg
-            else:
-                pform = pform.right(delimiter)
-                pform = pform.right(arg)
-
-        if pform is None:
-            return prettyForm("")
-        else:
-            return pform
+        if isinstance(delimiter, str):
+            delimiter = PrettyForm(delimiter)
+        return delimiter.join(*args, align=None)
 
 
 def pager_print(expr, **settings):
