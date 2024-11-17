@@ -504,6 +504,26 @@ class StringPict:
 
         return result.left(root_sign, align="b")
 
+    @property
+    def s(self):
+        sympy_deprecation_warning(
+                ("The attribute `s` of `StringPict` is deprecated since Sympy=1.14."
+                 "Use `text` instead."),
+                deprecated_since_version="1.14",
+                active_deprecations_target="deprecated-pretty-printing-functions",
+            )
+        return self.text
+
+    @s.setter
+    def s(self, value):
+        sympy_deprecation_warning(
+            ("The attribute `s` of `StringPict` is deprecated since Sympy=1.14."
+            "Use `text` instead."),
+                active_deprecations_target="deprecated-pretty-printing-functions",
+            )
+        self.text = value
+        return self.text
+    
     def subindex(self, sub_index):
         """Add a `subindex`.
 
