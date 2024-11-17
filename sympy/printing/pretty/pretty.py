@@ -76,30 +76,49 @@ class PrettyPrinter(Printer):
                 )
             )
 
-    def emptyPrinter(self, expr):
-        return prettyForm(str(expr))
+    def _hprint_vec(self, v):
+        D = None
 
-    @property
-    def _use_unicode(self):
-        if self._settings["use_unicode"]:
-            return True
-        else:
-            return pretty_use_unicode()
+        for a in v:
+            p = a
+            if D is None:
+                D = p
+            else:
+                D = D.right(", ")
+                D = D.right(p)
+        if D is None:
+            D = StringPict(" ")
 
-    def doprint(self, expr):
-        return self._print(expr).render(**self._settings)
+        return D
+
+    def _hprint_vseparator(
+        self, p1, p2, left=None, right=None, delimiter="", ifascii_nougly=False
+    ):
+        if ifascii_nougly and not self._use_unicode:
+            return self._print_seq(
+                (p1, "|", p2),
+                left=left,
+                right=right,
+                delimiter=delimiter,
+                ifascii_nougly=True,
+            )
+        tmp = self._print_seq(
+            (
+                p1,
+                p2,
+            ),
+            left=left,
+            right=right,
+            delimiter=delimiter,
+        )
+        sep = StringPict(vobj("|", tmp.height()), baseline=tmp.baseline)
+        return self._print_seq(
+            (p1, sep, p2), left=left, right=right, delimiter=delimiter
+        )
 
     # empty op so _print(StringPict) returns the same
     def _print_StringPict(self, e):
         return e
-
-    def _print_basestring(self, e):
-        return prettyForm(e)
-
-    def _print_atan2(self, e):
-        pform = self._print_seq(e.args).parenthesis()
-        pform = pform.left("atan2")
-        return pform
 
     def _print_Symbol(self, e, bold_name=False):
         symb = pretty_symbol(e.name, bold_name)
@@ -183,67 +202,12 @@ class PrettyPrinter(Printer):
         except KeyError:
             return self.emptyPrinter(e)
 
-    # Infinity inherits from Number, so we have to override _print_XXX order
-    _print_Infinity = _print_Atom
-    _print_NegativeInfinity = _print_Atom
-    _print_EmptySet = _print_Atom
-    _print_Naturals = _print_Atom
-    _print_Naturals0 = _print_Atom
-    _print_Integers = _print_Atom
-    _print_Rationals = _print_Atom
-    _print_Complexes = _print_Atom
-
-    _print_EmptySequence = _print_Atom
-
     def _print_Reals(self, e):
         if self._use_unicode:
             return self._print_Atom(e)
         else:
             inf_list = ["-oo", "oo"]
             return self._print_seq(inf_list, "(", ")")
-
-    def _print_subfactorial(self, e):
-        x = e.args[0]
-        pform = self._print(x)
-        # Add parentheses if needed
-        if not ((x.is_Integer and x.is_nonnegative) or x.is_Symbol):
-            pform = pform.parenthesis()
-        pform = pform.left("!")
-        return pform
-
-    def _print_factorial(self, e):
-        x = e.args[0]
-        pform = self._print(x)
-        # Add parentheses if needed
-        if not ((x.is_Integer and x.is_nonnegative) or x.is_Symbol):
-            pform = pform.parenthesis()
-        pform = pform.right("!")
-        return pform
-
-    def _print_factorial2(self, e):
-        x = e.args[0]
-        pform = self._print(x)
-        # Add parentheses if needed
-        if not ((x.is_Integer and x.is_nonnegative) or x.is_Symbol):
-            pform = pform.parenthesis()
-        pform = pform.right("!!")
-        return pform
-
-    def _print_binomial(self, e):
-        n, k = e.args
-
-        n_pform = self._print(n)
-        k_pform = self._print(k)
-
-        bar = " " * max(n_pform.width(), k_pform.width())
-
-        pform = k_pform.above(bar)
-        pform = pform.above(n_pform)
-        pform = pform.parenthesis("(", ")")
-
-        pform.baseline = (pform.baseline + 1) // 2
-
-        return pform
 
     def _print_Relational(self, e):
         op = prettyForm(" " + xsym(e.rel_op) + " ")
@@ -1525,46 +1489,6 @@ class PrettyPrinter(Printer):
 
         return self._print(ite.rewrite(Piecewise))
 
-    def _hprint_vec(self, v):
-        D = None
-
-        for a in v:
-            p = a
-            if D is None:
-                D = p
-            else:
-                D = D.right(", ")
-                D = D.right(p)
-        if D is None:
-            D = StringPict(" ")
-
-        return D
-
-    def _hprint_vseparator(
-        self, p1, p2, left=None, right=None, delimiter="", ifascii_nougly=False
-    ):
-        if ifascii_nougly and not self._use_unicode:
-            return self._print_seq(
-                (p1, "|", p2),
-                left=left,
-                right=right,
-                delimiter=delimiter,
-                ifascii_nougly=True,
-            )
-        tmp = self._print_seq(
-            (
-                p1,
-                p2,
-            ),
-            left=left,
-            right=right,
-            delimiter=delimiter,
-        )
-        sep = StringPict(vobj("|", tmp.height()), baseline=tmp.baseline)
-        return self._print_seq(
-            (p1, sep, p2), left=left, right=right, delimiter=delimiter
-        )
-
     def _print_hyper(self, e):
         # FIXME refactor Matrix, Piecewise, and this into a tabular environment
         ap = [self._print(a) for a in e.ap]
@@ -2520,9 +2444,15 @@ class PrettyPrinter(Printer):
             printset = tuple(s)
         return self._print_list(printset)
 
-    _print_SeqPer = _print_SeqFormula
-    _print_SeqAdd = _print_SeqFormula
-    _print_SeqMul = _print_SeqFormula
+
+
+    def _print_basestring(self, e):
+        return prettyForm(e)
+
+    def _print_atan2(self, e):
+        pform = self._print_seq(e.args).parenthesis()
+        pform = pform.left("atan2")
+        return pform
 
     def _print_seq(
         self,
@@ -2550,21 +2480,6 @@ class PrettyPrinter(Printer):
 
         s = s.parenthesis(left, right, ifascii_nougly=ifascii_nougly)
         return s
-
-    def join(self, delimiter, args):
-        pform = None
-
-        for arg in args:
-            if pform is None:
-                pform = arg
-            else:
-                pform = pform.right(delimiter)
-                pform = pform.right(arg)
-
-        if pform is None:
-            return prettyForm("")
-        else:
-            return pform
 
     def _print_list(self, l):
         return self._print_seq(l, "[", "]")
@@ -2819,6 +2734,50 @@ class PrettyPrinter(Printer):
         else:
             return self._print_number_function(e, "stieltjes")
 
+    def _print_subfactorial(self, e):
+        x = e.args[0]
+        pform = self._print(x)
+        # Add parentheses if needed
+        if not ((x.is_Integer and x.is_nonnegative) or x.is_Symbol):
+            pform = pform.parenthesis()
+        pform = pform.left("!")
+        return pform
+
+    def _print_factorial(self, e):
+        x = e.args[0]
+        pform = self._print(x)
+        # Add parentheses if needed
+        if not ((x.is_Integer and x.is_nonnegative) or x.is_Symbol):
+            pform = pform.parenthesis()
+        pform = pform.right("!")
+        return pform
+
+    def _print_factorial2(self, e):
+        x = e.args[0]
+        pform = self._print(x)
+        # Add parentheses if needed
+        if not ((x.is_Integer and x.is_nonnegative) or x.is_Symbol):
+            pform = pform.parenthesis()
+        pform = pform.right("!!")
+        return pform
+
+    def _print_binomial(self, e):
+        n, k = e.args
+
+        n_pform = self._print(n)
+        k_pform = self._print(k)
+
+        bar = " " * max(n_pform.width(), k_pform.width())
+
+        pform = k_pform.above(bar)
+        pform = pform.above(n_pform)
+        pform = pform.parenthesis("(", ")")
+
+        pform.baseline = (pform.baseline + 1) // 2
+
+        return pform
+
+
     def _print_KroneckerDelta(self, e):
         pform = self._print(e.args[0])
         pform = pform.right(prettyForm(","))
@@ -3052,6 +3011,71 @@ class PrettyPrinter(Printer):
         return self._print(s.name)
 
 
+    # Infinity inherits from Number, so we have to override _print_XXX order
+    _print_Infinity = _print_Atom
+    _print_NegativeInfinity = _print_Atom
+    _print_EmptySet = _print_Atom
+    _print_Naturals = _print_Atom
+    _print_Naturals0 = _print_Atom
+    _print_Integers = _print_Atom
+    _print_Rationals = _print_Atom
+    _print_Complexes = _print_Atom
+
+    _print_EmptySequence = _print_Atom
+
+    _print_SeqPer = _print_SeqFormula
+    _print_SeqAdd = _print_SeqFormula
+    _print_SeqMul = _print_SeqFormula
+
+
+    @property
+    def _use_unicode(self):
+        if self._settings["use_unicode"]:
+            return True
+        else:
+            return pretty_use_unicode()
+
+    def doprint(self, expr):
+        return self._print(expr).render(**self._settings)
+
+    def emptyPrinter(self, expr):
+        return prettyForm(str(expr))
+
+    def join(self, delimiter, args):
+        pform = None
+
+        for arg in args:
+            if pform is None:
+                pform = arg
+            else:
+                pform = pform.right(delimiter)
+                pform = pform.right(arg)
+
+        if pform is None:
+            return prettyForm("")
+        else:
+            return pform
+
+
+def pager_print(expr, **settings):
+    """Prints expr using the pager, in pretty form.
+
+    This invokes a pager command using pydoc. Lines are not wrapped
+    automatically. This routine is meant to be used with a pager that allows
+    sideways scrolling, like ``less -S``.
+
+    Parameters are the same as for ``pretty_print``. If you wish to wrap lines,
+    pass ``num_columns=None`` to auto-detect the width of the terminal.
+
+    """
+    from locale import getpreferredencoding
+    from pydoc import pager
+
+    if "num_columns" not in settings:
+        settings["num_columns"] = 500000  # disable line wrap
+    pager(pretty(expr, **settings).encode(getpreferredencoding()))
+
+
 @print_function(PrettyPrinter)
 def pretty(expr, **settings):
     """Returns a string containing the prettified form of expr.
@@ -3118,22 +3142,3 @@ def pretty_print(expr, **kwargs):
 
 
 pprint = pretty_print
-
-
-def pager_print(expr, **settings):
-    """Prints expr using the pager, in pretty form.
-
-    This invokes a pager command using pydoc. Lines are not wrapped
-    automatically. This routine is meant to be used with a pager that allows
-    sideways scrolling, like ``less -S``.
-
-    Parameters are the same as for ``pretty_print``. If you wish to wrap lines,
-    pass ``num_columns=None`` to auto-detect the width of the terminal.
-
-    """
-    from locale import getpreferredencoding
-    from pydoc import pager
-
-    if "num_columns" not in settings:
-        settings["num_columns"] = 500000  # disable line wrap
-    pager(pretty(expr, **settings).encode(getpreferredencoding()))
